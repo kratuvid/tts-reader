@@ -33,7 +33,7 @@ class Speechd(TTS):
 
     def speak(self, text, getaudio):
         if getaudio:
-            e = "The speech dispatcher module doesn't support downloading audio!"
+            e = "The speech dispatcher backend doesn't support downloading audio!"
             logger.error(e)
             return e
 
@@ -54,7 +54,6 @@ class Speechd(TTS):
         )
 
     def speechd_callback(self, type):
-        logger.info("Event received: " + type)
         if type in (speechd.CallbackType.END, speechd.CallbackType.CANCEL):
             self.paused = False
 
@@ -73,7 +72,7 @@ class Speechd(TTS):
             self.pause()
 
     def skip(self):
-        logger.error("The speech dispatcher module doesn't support skipping. Ignoring")
+        logger.error("The speech dispatcher backend doesn't support skipping. Ignoring")
 
     def reset(self):
         self.sdclient.cancel()

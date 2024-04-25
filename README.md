@@ -8,6 +8,7 @@ Select and read aloud text from anywhere 🔊
 - wl-clipboard (Wayland only)
 - xclip (X11 only)
 - piper C++ (https://github.com/rhasspy/piper/releases), or piper python (https://pypi.org/project/piper-tts/)
+- speech-dispatcher (if using)
 - anything to send requests
 
 ### Working
@@ -54,6 +55,9 @@ Select and read aloud text from anywhere 🔊
     curl http://localhost:5000/skip
     ```
 
+### Note
+The speech-dispatcher backend works fundamentally different than piper. Since it is higher level abstraction making it work in a consistent fashion is not possible
+
 ### Let's set keybinds
 
 For practical usage, you can set keybindings in your DE or window manager. Say, if you're running sway, add the following to your config `~/.config/sway/config`.
@@ -89,8 +93,10 @@ options:
                         if a different backend is selected
   --speechd, --no-speechd
                         Use speechd instead of piper. Incomplete
-  --volume VOLUME       Volume [0-1]
-  --speed SPEED         Playback speed [0-10]
+  --volume VOLUME       Volume. Piper: [0-2, def:1], Speechd: [-100-100,
+                        def:100]
+  --speed SPEED         Speech rate. Piper: [0-5, def:1], Speechd: [-100-100,
+                        def:0]
   --piper-rate PIPER_RATE
                         Piper: Playback sample rate. More info at https://gith
                         ub.com/rhasspy/piper/blob/master/TRAINING.md
