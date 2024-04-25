@@ -111,3 +111,6 @@ options:
                         Piper: Path to the model configuration
   --debug, --no-debug   Enable flask debug mode (developmental purposes)
 ```
+
+# Todo
+- [ ] Implement edge-tts (https://github.com/rany2/edge-tts)
