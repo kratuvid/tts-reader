@@ -37,7 +37,7 @@ class Speechd(TTS):
             logger.error(e)
             return e
 
-        self.paused = False
+        self.play()
 
         self.sdclient.set_rate(int(self.parsed.speed))
         self.sdclient.set_volume(int(self.parsed.volume))
