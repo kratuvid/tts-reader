@@ -10,16 +10,10 @@ try:
 except ImportError:
     has_speechd = False
 
-# TODO: Implement /read?getaudio
-
 
 class Speechd(TTS):
     def __init__(self, parsed):
         super().__init__()
-
-        logger.critical("The speech-dispatcher backend is currently unimplemented")
-        self.inited = False
-        return
 
         if not has_speechd:
             logger.critical(
@@ -29,30 +23,62 @@ class Speechd(TTS):
             return
 
         self.parsed = parsed
+
         self.sdclient = speechd.SSIPClient(f"tts-reader_{__name__}_{time.time()}")
+        self.sdclient.set_priority(speechd.Priority.TEXT)
+
+        self.paused = False
+
         self.inited = True
 
-    def __del__(self):
-        if hasattr(self, 'sdclient'):
-            self.sdclient.close()
-
     def speak(self, text, getaudio):
-        self.sdclient.speak(text)
+        if getaudio:
+            e = "The speech dispatcher module doesn't support downloading audio!"
+            logger.error(e)
+            return e
+
+        self.paused = False
+
+        self.sdclient.set_rate(int(self.parsed.speed))
+        self.sdclient.set_volume(int(self.parsed.volume))
+        self.sdclient.speak(
+            text,
+            self.speechd_callback,
+            (
+                speechd.CallbackType.BEGIN,
+                speechd.CallbackType.END,
+                speechd.CallbackType.CANCEL,
+                speechd.CallbackType.PAUSE,
+                speechd.CallbackType.RESUME,
+            ),
+        )
+
+    def speechd_callback(self, type):
+        logger.info("Event received: " + type)
+        if type in (speechd.CallbackType.END, speechd.CallbackType.CANCEL):
+            self.paused = False
 
     def play(self):
-        pass
+        self.paused = False
+        self.sdclient.resume()
 
     def pause(self):
-        pass
+        self.paused = True
+        self.sdclient.pause()
 
     def toggle(self):
-        pass
+        if self.paused:
+            self.play()
+        else:
+            self.pause()
 
     def skip(self):
-        pass
+        logger.error("The speech dispatcher module doesn't support skipping. Ignoring")
 
     def reset(self):
-        pass
+        self.sdclient.cancel()
 
     def status(self):
-        return dict({})
+        return {
+            "paused": self.paused,
+        }

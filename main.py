@@ -17,8 +17,15 @@ logger = logging.getLogger(__name__)
 class App:
     def __init__(self, parsed):
         self.parsed = parsed
-        self.parsed.volume = max(0.0, min(self.parsed.volume, 1.0))
-        self.parsed.speed = max(0.0, min(self.parsed.speed, 10.0))
+
+        # Apply defaults if not set
+        if self.parsed.speechd:
+            self.parsed.speed = 0 if self.parsed.speed is None else self.parsed.speed
+            self.parsed.volume = 100 if self.parsed.volume is None else self.parsed.volume
+        else:
+            self.parsed.speed = 1 if self.parsed.speed is None else self.parsed.speed
+            self.parsed.volume = 1 if self.parsed.volume is None else self.parsed.volume
+        self.contain_speed_volume()
 
         self.begin_time = time.time()
         self.notifier = DesktopNotifier()
@@ -48,6 +55,14 @@ class App:
         self.tts = Speechd(self.parsed) if self.parsed.speechd else Piper(self.parsed)
         if not self.tts.inited:
             raise Exception("Failed to initialize the TTS backend")
+
+    def contain_speed_volume(self):
+        if self.parsed.speechd:
+            self.parsed.volume = max(-100, min(self.parsed.volume, 100))
+            self.parsed.speed = max(-100, min(self.parsed.speed, 100))
+        else:
+            self.parsed.volume = max(0.0, min(self.parsed.volume, 2.0))
+            self.parsed.speed = max(0.0, min(self.parsed.speed, 5.0))
 
     def read(self):
         num_chars = 0
@@ -146,13 +161,13 @@ class App:
         return ""
 
     def speed(self, data):
-        data = max(0.0, min(data, 10.0))
         self.parsed.speed = data
+        self.contain_speed_volume()
         return ""
 
     def volume(self, data):
-        data = max(0.0, min(data, 1.0))
         self.parsed.volume = data
+        self.contain_speed_volume()
         return ""
 
     def uptime(self):
@@ -192,9 +207,17 @@ if __name__ == "__main__":
         action=argparse.BooleanOptionalAction,
         help="Use speechd instead of piper. Incomplete",
     )
-    parser.add_argument("--volume", type=float, default=1.0, help="Volume [0-1]")
     parser.add_argument(
-        "--speed", type=float, default=1.0, help="Playback speed [0-10]"
+        "--volume",
+        type=float,
+        default=None,
+        help="Volume. Piper: [0-2, def:1], Speechd: [-100-100, def:100]",
+    )
+    parser.add_argument(
+        "--speed",
+        type=float,
+        default=None,
+        help="Speech rate. Piper: [0-5, def:1], Speechd: [-100-100, def:0]",
     )
     parser.add_argument(
         "--piper-rate",
