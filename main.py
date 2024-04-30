@@ -205,7 +205,7 @@ if __name__ == "__main__":
         "--speechd",
         default=False,
         action=argparse.BooleanOptionalAction,
-        help="Use speechd instead of piper. Buggy",
+        help="Use speech dispatcher instead of piper. Buggy",
     )
     parser.add_argument(
         "--volume",
