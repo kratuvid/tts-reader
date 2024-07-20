@@ -1,5 +1,5 @@
 from tts import TTS
-import importlib
+import importlib.util
 import logging
 import queue
 import shutil
@@ -41,9 +41,9 @@ class Piper(TTS):
 
         self.gen_thread = threading.Thread(target=self.run_gen_thread, daemon=True)
         self.play_thread = threading.Thread(target=self.run_play_thread, daemon=True)
-
         self.gen_thread.start()
         self.play_thread.start()
+
         self.inited = True
 
     def run_play_thread(self):

@@ -122,3 +122,4 @@ options:
 
 # Todo
 - [ ] Implement edge-tts (https://github.com/rany2/edge-tts)
+- [ ] Move to a thread pool based Piper backend impl. Maybe use smth internal to python
